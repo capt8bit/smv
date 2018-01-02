@@ -1,0 +1,96 @@
+#! /bin/sh -
+#
+# Copyright (c) 2018, Michael Monsivais
+#
+# Permission to use, copy, modify, and distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+EXITCODE=0
+trap 'exit 1' HUP INT QUIT ABRT KILL
+
+dtag() {
+	date '+%Y-%m-%d_%H-%M-%S'
+}
+
+error() {
+	printf 'Error: %s\n' "$1" >&2
+	: $((EXITCODE=EXITCODE+1))
+}
+
+usage() {
+	error "Invalid Options. See mv(1)."
+}
+
+_srm() {
+	N1="$(ls -i "$1" | cut -d ' ' -f 1)"
+	N2="$(ls -i "$2" | cut -d ' ' -f 1)"
+	if [ $N1 -ne $N2 ]; then
+		rm "$1"
+	fi
+	unset N1 N2
+}
+
+_smv() {
+	SOURCE="$1"
+	TARGET="$2"
+	SOURCE_NAME="$(basename -- "$SOURCE")"
+
+	if ! [ -e "$TARGET" ]; then
+		_TARGET="$TARGET"
+	elif ! [ -d "$TARGET" ]; then
+		if cmp -s "$SOURCE" "$TARGET" 2> /dev/null; then
+			_srm "$SOURCE" "$TARGET"
+		else
+			_TARGET="${TARGET}_$(dtag)"
+		fi
+	elif ! [ -e "$TARGET/$SOURCE_NAME" ]; then
+		_TARGET="$TARGET"
+	elif [ -d "$TARGET/$SOURCE_NAME" ]; then
+		find "$SOURCE" ! -path "$SOURCE" |
+			while read FILE; do
+				(_smv "$FILE" "$TARGET/$SOURCE_NAME")
+				unset FILE
+			done
+		rmdir "$SOURCE"
+	else
+		if cmp -s "$SOURCE" "$TARGET/$SOURCE_NAME" 2> /dev/null; then
+			_srm "$SOURCE" "$TARGET/$SOURCE_NAME"
+		else
+			_TARGET="$TARGET/${SOURCE_NAME}_$(dtag)"
+		fi
+	fi
+
+	[ -n "$_TARGET" ] && mv -i "$SOURCE" "$_TARGET"
+	unset _TARGET SOURCE_NAME
+}
+
+# Without options print usage.
+# This also allows this file to be sourced.
+if [ $# -eq 0 ]; then
+	usage
+	return $EXITCODE
+fi
+
+# kcov unaware start
+TARGET="$(eval printf '%s' "\${$#}")"
+if ! [ -d "$TARGET" ] && [ $# -gt 2 ]; then
+		# Only one source is acceptable when target is not a directory.
+		usage 
+else
+	while [ $# -gt 1 ]; do
+		SOURCE="$1"; shift
+		_smv "$SOURCE" "$TARGET"
+	done
+fi
+
+[ $EXITCODE -gt 125 ] && exit 125 || exit $EXITCODE
+# kcov unaware end
