@@ -1,7 +1,8 @@
 
-[smv - safe mv](./smv_logo2.png)
+![smv - safe mv](./smv_logo2.png)
 
 -----
+[![Build Status](https://travis-ci.org/capt8bit/smv.svg?branch=master)](https://travis-ci.org/capt8bit/smv)
 [![codecov](https://codecov.io/gh/capt8bit/smv/branch/master/graph/badge.svg)](https://codecov.io/gh/capt8bit/smv)
 
 `smv` (safe mv) is a simple safety wrapper around `mv(1)`.
