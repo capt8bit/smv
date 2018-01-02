@@ -1,0 +1,38 @@
+sudo: false
+
+language: bash
+
+addons:
+  apt:
+    packages:
+      - binutils-dev
+      - libcurl4-openssl-dev
+      - zlib1g-dev
+      - libdw-dev
+      - libiberty-dev
+
+env:
+- PATH=${PATH}:${HOME}/kcov/bin
+
+before_install:
+- wget -O kcov-master.tar.gz https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+- wget -O shunit2-master.tar.gz https://github.com/kward/shunit2/archive/master.tar.gz
+
+install:
+- tar xzf kcov-master.tar.gz
+- cd kcov-master
+- mkdir build
+- cd build
+- cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov ..
+- make
+- make install
+- cd ../..
+- rm -rf kcov-master
+- tar xzf shunit2-master.tar.gz
+- cp shunit2-master/shunit2 tests/
+
+script:
+- kcov --exclude-path=tests/shunit2 --exclude-region='kcov unaware start:kcov unaware end' coverage/ tests/smv_tests.sh
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
