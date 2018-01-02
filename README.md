@@ -1,7 +1,8 @@
 
-<img src=./smv_logo2.png alt="smv - safe mv" style="height: 50px;" />
+[smv - safe mv](./smv_logo2.png)
 
 -----
+[![codecov](https://codecov.io/gh/capt8bit/smv/branch/master/graph/badge.svg)](https://codecov.io/gh/capt8bit/smv)
 
 `smv` (safe mv) is a simple safety wrapper around `mv(1)`.
 
