@@ -15,7 +15,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 EXITCODE=0
-trap 'exit 1' HUP INT QUIT ABRT KILL
+trap 'exit 1' HUP INT QUIT ABRT
 
 dtag() {
 	date '+%Y-%m-%d_%H-%M-%S'
