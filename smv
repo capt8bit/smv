@@ -44,15 +44,15 @@ _smv() {
 	TARGET="$2"
 	SOURCE_NAME="$(basename -- "$SOURCE")"
 
-	if ! [ -e "$TARGET" ]; then
+	if [ ! -e "$TARGET" ]; then
 		_TARGET="$TARGET"
-	elif ! [ -d "$TARGET" ]; then
+	elif [ ! -d "$TARGET" ]; then
 		if cmp -s "$SOURCE" "$TARGET" 2> /dev/null; then
 			_srm "$SOURCE" "$TARGET"
 		else
 			_TARGET="${TARGET}_$(dtag)"
 		fi
-	elif ! [ -e "$TARGET/$SOURCE_NAME" ]; then
+	elif [ ! -e "$TARGET/$SOURCE_NAME" ]; then
 		_TARGET="$TARGET"
 	elif [ -d "$TARGET/$SOURCE_NAME" ]; then
 		find "$SOURCE" ! -path "$SOURCE" |
@@ -82,7 +82,7 @@ fi
 
 # kcov unaware start
 TARGET="$(eval printf '%s' "\${$#}")"
-if ! [ -d "$TARGET" ] && [ $# -gt 2 ]; then
+if [ ! -d "$TARGET" ] && [ $# -gt 2 ]; then
 		# Only one source is acceptable when target is not a directory.
 		usage 
 else
