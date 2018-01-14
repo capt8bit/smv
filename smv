@@ -56,7 +56,7 @@ _smv() {
 		_TARGET="$TARGET"
 	elif [ -d "$TARGET/$SOURCE_NAME" ]; then
 		find "$SOURCE" ! -path "$SOURCE" |
-			while read FILE; do
+			while read -r FILE; do
 				(_smv "$FILE" "$TARGET/$SOURCE_NAME")
 				unset FILE
 			done
